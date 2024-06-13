@@ -9,8 +9,7 @@ config.read('config.ini')
 # mode = 0 Режим сбора бесплатных попыток
 # mode = 1 Режим сбора и автоматической игры
 mode = config['mode']['mode']
-
-url = 'https://epicloot.in/event'
+url = config['mode']['url']
 
 browser = BrowserController(url)
 def main():

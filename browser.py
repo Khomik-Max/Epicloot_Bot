@@ -6,6 +6,7 @@ import json
 import time
 import random
 import logging
+import os
 
 class BrowserController():
     browser = None
@@ -25,15 +26,26 @@ class BrowserController():
         # Инициализация браузера
         self.logger.info('Initializing BrowserController')
         options = webdriver.ChromeOptions()
-
-        # Настройка опций браузера Chrome
-        options.add_argument("--disable-blink-features=AutomationControlled")
-        options.add_argument("--user-agent='Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:72.0) Gecko/20100101 Firefox/72.0'")
+        options.add_argument("user-agent=Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0")
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option('useAutomationExtension', False)
+        options.add_argument("--disable-blink-features=AutomationControlled")
+        options.add_argument("--disable-extensions")
+        options.add_argument("--disable-extensions-file-access-check")
+        options.add_argument("--disable-extensions-http-throttling")
+        options.add_argument("--disable-infobars")
+        options.add_argument("--disable-web-security")
 
-        # Создание экземпляра веб-драйвера Chrome
-        self.browser = webdriver.Chrome(options=options)
+        script_dir = os.path.dirname(__file__)
+        profile_dir = os.path.join(script_dir, 'Profile')
+        options.add_argument(f"user-data-dir={profile_dir}")
+        options.add_argument("profile-directory=Default")
+
+        binary_yandex_driver_file = 'yandexdriver.exe'
+
+        service = webdriver.ChromeService(executable_path=binary_yandex_driver_file)
+
+        self.browser = webdriver.Chrome(service=service, options=options)
 
         # Максимизация окна браузера и переход по указанному URL
         self.browser.maximize_window()
@@ -61,7 +73,7 @@ class BrowserController():
     def get_gift(self):
         try:
             # Попытка получить подарок
-            but_get_map = self.wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="battle"]/div[6]/div[2]/div[2]/div[3]/div[1]')))
+            but_get_map = self.wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="battle"]/div[6]/div[2]/div[2]/div[3]/div[1]/span')))
             but_get_map.click()
             print('Получена бесплатная попытка!')
             self.logger.info('Getting gift')
@@ -93,7 +105,7 @@ class BrowserController():
                             wait_move = self.wait.until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="battle"]/div[6]/div[7]/div[2]/div/div[1]'), 'Выбери путь!'))
                             box = self.browser.find_element(By.XPATH, f'//*[@id="battle"]/div[6]/div[7]/div[3]/div[4]/div/div[{i+1}]/div[{random.randint(1, 3)}]')
                             box.click()
-                            time.sleep(1)
+                            time.sleep(1.5)
 
                     self.logger.info('Clicking next')
                     # Нажатие на кнопку "Продолжить"
